@@ -9,6 +9,13 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    @objc dynamic var myBool:Bool = true
+    @objc var myInt:UInt = 0
+    @objc var myFloat:Float = 12.3
+    @objc var myDouble:Double = 12.3
+    @objc var myString:String = "123"
+    @objc var myObject:AnyObject! = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +58,26 @@ class ViewController: UIViewController {
         super.viewWillAppear(animated)
         print("自定义将要显示")
     }
+    
+    @objc func testReturnVoidWithAid(aId:UIView) {
+        
+    }
+    
+    @objc func testReturnVoedWithaBool(aBool:Bool, aInt:UInt, aFloat:Float, aDouble:Double, aString:String, aObject:AnyObject) {
+        
+    }
+    
+    func testReturnTuple(aBool:Bool, aInt:UInt, aFloat:Float) ->(Bool, UInt, Float) {
+        return (aBool, aInt, aFloat)
+    }
+    
+    func testReturnVoidWithACharacter(aC:Character) {
+        
+    }
+    
+    @objc func tableView(tableVIew:UITableView, numberOfRowsInSection scetion:Int) ->Int {
+        return 10
+    }
 }
 
 extension ViewController {
@@ -61,6 +88,11 @@ extension ViewController {
         buton.backgroundColor = UIColor.gray
         buton.addTarget(self, action: "buttonAction:", for: UIControlEvents.touchUpInside)//#selector(buttonAction(_:))
         self.view.addSubview(buton)
+        
+        let aSwiftClass = TestSwiftClass()
+        getClsMethodAndPropertyList(object_getClass(aSwiftClass)!)
+        print("\n")
+        getClsMethodAndPropertyList(object_getClass(self)!)
     }
     
     @objc fileprivate func buttonAction(_ button: UIButton) {
@@ -92,6 +124,20 @@ extension ViewController {
     }
 }
 
+class TestSwiftClass {
+    
+    @objc var myBool:Bool = true
+    @objc var myInt:UInt = 0
+    @objc var myFloat:Float = 12.3
+    @objc var myDouble:Double = 12.3
+    @objc var myString:String = "123"
+    @objc var myObject:AnyObject! = nil
+    
+    @objc func testReturnViodWithaId(aId:UIView) {
+        
+    }
+}
+
 // MARK: - 替换方法
 func methodChange(_ cls:AnyClass, leftSelector:Selector, rightSelector:Selector) {
     guard let leftMethod = class_getInstanceMethod(cls, leftSelector) else {
@@ -109,5 +155,33 @@ func methodChange(_ cls:AnyClass, leftSelector:Selector, rightSelector:Selector)
     } else {
         method_exchangeImplementations(leftMethod, rightMethod)
     }
+}
+
+// MARK: - 获取方法的属性和方法列表
+func getClsMethodAndPropertyList(_ cls: AnyClass) {
+    print("start methodList")
+    var methodNum:UInt32 = 0
+    let methodList = class_copyMethodList(cls, &methodNum)
+    if methodList != nil {
+        for index in 0..<numericCast(methodNum) {
+            let method: Method = methodList![index]
+            print(String(describing: method_getTypeEncoding(method)))
+            print(String(describing: method_copyReturnType(method)))
+            print(String(describing: method_getName(method)))
+        }
+    }
+    print("end methodList")
+    
+    print("start propertyList")
+    var propertyNum:UInt32 = 0
+    let propertyList = class_copyPropertyList(cls, &propertyNum)
+    if propertyList != nil {
+        for index in 0..<numericCast(propertyNum) {
+            let property: objc_property_t = propertyList![index]
+            print(String(describing: property_getName(property)))
+            print(String(describing: property_getAttributes(property)))
+        }
+    }
+    print("end propertyList")
 }
 
